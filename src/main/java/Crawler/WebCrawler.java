@@ -1,3 +1,5 @@
+package Crawler;
+
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,13 +14,13 @@ public class WebCrawler implements Runnable {
     private final Thread thread;
     private final String firstLink;
     private final ArrayList<String> visitedLinks = new ArrayList<>();
-    private final Long Id;
+    private final Long id;
 
 
     public WebCrawler(String link, Long number) {
-        System.out.println("WebCrawler created successfully");
+        System.out.println("Crawler.WebCrawler created successfully");
         firstLink = link;
-        Id = number;
+        id = number;
 
         thread = new Thread(this);
         thread.start();
@@ -51,7 +53,7 @@ public class WebCrawler implements Runnable {
             Document document = connection.get();
 
             if (connection.response().statusCode() == 200){
-                System.out.printf("\n**Bot ID: %d received message %s", Id, url);
+                System.out.printf("\n**Bot ID: %d received message %s", id, url);
 
                 String title = document.title();
                 System.out.println(title);
