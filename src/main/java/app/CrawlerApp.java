@@ -11,7 +11,7 @@ import service.ScraperService;
 
 import java.util.List;
 
-@SpringBootApplication(scanBasePackages = {"app", "service", "scraper"})
+@SpringBootApplication(scanBasePackages = {"app", "service", "controller"})
 @EnableJpaRepositories(basePackages = "repository")
 @EntityScan(basePackages = "model")
 public class CrawlerApp {
@@ -37,22 +37,6 @@ public class CrawlerApp {
         }
     }
 }
-//
-//        scraperService.scrapeAndSavePlayer(CR7);
-//        System.out.printf("Based on transfermarkt.com on %s\n\n", LocalDate.now().format
-//                (DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-//
-////        TransfermarktScraper.scrapePlayer(CR7);
-////        TransfermarktScraper.scrapePlayer(KM9);
-////        TransfermarktScraper.scrapePlayer(VVD);
-////        TransfermarktScraper.scrapePlayer(WW);
-//
-//        try(Connection con = connection.connect()){
-//            System.out.println("Success");
-//        } catch (SQLException e){
-//            e.printStackTrace();
-//        }
-//    }
 //    //        ArrayList<WebCrawler> bots = new ArrayList<>();
 ////        bots.add(new WebCrawler("https://en.wikipedia.org/wiki/Open-source_intelligence", 1L));
 ////        bots.add(new WebCrawler("https://www.nu.nl/", 2L));
