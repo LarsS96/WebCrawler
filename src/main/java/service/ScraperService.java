@@ -1,26 +1,23 @@
 package service;
 
 import controller.TransfermarktScraper;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import model.Player;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import repository.PlayerRepository;
 
 import java.io.IOException;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
+@AllArgsConstructor
 public class ScraperService {
 
-    @Autowired
     private PlayerRepository playerRepository;
 
-    @Autowired
     private TransfermarktScraper transfermarktScraper;
 
     public void scrapeAndSavePlayer(String url) {
