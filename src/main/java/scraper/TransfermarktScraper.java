@@ -1,4 +1,4 @@
-package Scraper;
+package scraper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,7 +15,6 @@ public class TransfermarktScraper {
             Document doc = Jsoup.connect(url).get();
             System.out.println(scrapeName(doc));
             System.out.println(scrapeMarketValue(doc));
-            System.out.println(scrapeGoals(doc, mutateUrl(url)));
         }
         catch (IOException e) {
             e.printStackTrace();
