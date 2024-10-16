@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Component
 public interface PlayerRepository extends JpaRepository<Player, Long> {
+    boolean existsByName(String name);
 
     //TODO querys om te zoeken op ID bvb
 }

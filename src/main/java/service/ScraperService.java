@@ -23,6 +23,11 @@ public class ScraperService {
     public void scrapeAndSavePlayer(String url) {
         try {
             Document doc = Jsoup.connect(url).get();
+            String playerName = transfermarktScraper.scrapeName(doc);
+
+            if (playerRepository.existsByName(playerName)) {
+                return;
+            }
             Player player = new Player();
             player.setName(transfermarktScraper.scrapeName(doc));
             player.setMarketValue(transfermarktScraper.scrapeMarketValue(doc));

@@ -2,13 +2,11 @@ package controller;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -21,9 +19,14 @@ public class TransfermarktScraper {
         String firstName = playerNameAndNumberElement.ownText().trim();
 
         Element lastNameElement = playerNameAndNumberElement.selectFirst("strong");
-        String lastName = lastNameElement.text().trim();
 
-        return String.format("%s %s", firstName, lastName);
+        if (lastNameElement != null) {
+            String lastName = lastNameElement.text().trim();
+            return String.format("%s %s", firstName, lastName);
+        } else {
+            return firstName;
+        }
+
     }
 
     public String scrapeMarketValue(Document doc) {
@@ -53,23 +56,5 @@ public class TransfermarktScraper {
             }
         }
         return -1;
-    }
-
-    public static String scrapeGoals(Document doc, String url) {
-
-        Element table = doc.select("table.items").first();
-        Elements zentriertElements = table.select("td.zentriert");
-
-        return zentriertElements.get(1).text();
-    }
-
-    public static String mutateUrl(String url) {
-        List<String> parts = List.of(url.split("/"));
-
-        String name = parts.get(3);
-        String id = parts.get(6);
-
-        return String.format
-                ("https://www.transfermarkt.com/%s/leistungsdaten/spieler/%s/plus/0?saison=ges".trim(), name, id);
     }
 }
