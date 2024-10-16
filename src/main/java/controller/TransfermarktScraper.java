@@ -12,30 +12,37 @@ import java.util.Locale;
 @Component
 public class TransfermarktScraper {
 
+
     public String scrapeName(Document doc) {
         String marketValueClass = "h1.data-header__headline-wrapper";
 
         Element playerNameAndNumberElement = doc.selectFirst(marketValueClass);
-        String firstName = playerNameAndNumberElement.ownText().trim();
+        if (playerNameAndNumberElement != null) {
+            String firstName = playerNameAndNumberElement.ownText().trim();
 
-        Element lastNameElement = playerNameAndNumberElement.selectFirst("strong");
+            Element lastNameElement = playerNameAndNumberElement.selectFirst("strong");
 
-        if (lastNameElement != null) {
-            String lastName = lastNameElement.text().trim();
-            return String.format("%s %s", firstName, lastName);
-        } else {
-            return firstName;
+            if (lastNameElement != null) {
+                String lastName = lastNameElement.text().trim();
+                return String.format("%s %s", firstName, lastName);
+            } else {
+                return firstName;
+            }
         }
-
+        return "Club";
     }
 
     public String scrapeMarketValue(Document doc) {
         String marketValueClass = "a.data-header__market-value-wrapper";
 
         Element playerMarketValueElement = doc.selectFirst(marketValueClass);
-        String marketValue = playerMarketValueElement.ownText().trim();
 
-        return String.format("Є%sm\n", marketValue);
+        if (playerMarketValueElement != null) {
+            String marketValue = playerMarketValueElement.ownText().trim();
+
+            return String.format("Є%sm\n", marketValue);
+        }
+        return "N/A";
     }
 
     public int scrapeAge(Document doc) {

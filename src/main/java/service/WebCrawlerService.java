@@ -25,7 +25,7 @@ public class WebCrawlerService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        crawl("https://www.transfermarkt.com/fc-liverpool/startseite/verein/31", 5, 1);
+        crawl("https://www.transfermarkt.com/manchester-city/kader/verein/281/saison_id/2024/plus/1", 5, 5);
     }
 
     public void crawl(String startUrl, int maxSteps, int maxTimeInMinutes) {
