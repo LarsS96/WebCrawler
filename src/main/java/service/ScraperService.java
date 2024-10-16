@@ -33,9 +33,10 @@ public class ScraperService {
             player.setMarketValue(transfermarktScraper.scrapeMarketValue(doc));
             player.setAge(transfermarktScraper.scrapeAge(doc));
 
-            playerRepository.save(player);
-            log.info(String.format("%s has succesfully been added to the database", player.getName()));
-
+            if (player.getAge() > 0) {
+                playerRepository.save(player);
+                log.info(String.format("%s has succesfully been added to the database", player.getName()));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
