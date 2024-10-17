@@ -12,8 +12,6 @@ public class CrawlerApp {
 
     public static void main(String[] args) {
         SpringApplication.run(CrawlerApp.class, args);
-
-
     }
 
 }

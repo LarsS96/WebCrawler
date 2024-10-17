@@ -38,7 +38,7 @@ public class ScraperService {
         if (playerRepository.existsByName(playername)) {
             return null;
         }
-        return createPlayer(doc);
+        return transfermarktScraper.scrapePlayer(url);
     }
 
     public void savePlayer(Player player) {
@@ -48,20 +48,10 @@ public class ScraperService {
         }
     }
 
-    private Player createPlayer(Document doc) {
-        Player player = new Player();
-        player.setName(transfermarktScraper.scrapeName(doc));
-        player.setMarketValue(transfermarktScraper.scrapeMarketValue(doc));
-        player.setAge(transfermarktScraper.scrapeAge(doc));
-        return player;
-    }
-
     public void addPlayerIfNew(String url) {
         if (!visitedPages.contains(url)) {
             visitedPages.add(url);
             scrapeAndSavePlayer(url);
         }
     }
-
-
 }
