@@ -26,7 +26,7 @@ public class TransfermarktScraper {
                 return String.format("%s %s", firstName, lastName);
             } else {
                 return firstName;
-            }
+            } //TODO vermijden van if statements in andere if statements
         }
         return "Club";
     }
@@ -40,8 +40,8 @@ public class TransfermarktScraper {
             String marketValue = playerMarketValueElement.ownText().trim();
 
             return String.format("Є%sm\n", marketValue);
-        }
-        return "N/A";
+        } //TODO market value klopt niet helemaal, verschil tussen miljoenen, miljarden en tonnen
+        return "";
     }
 
     public int scrapeAge(Document doc) {
