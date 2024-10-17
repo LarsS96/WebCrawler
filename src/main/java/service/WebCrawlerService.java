@@ -74,7 +74,7 @@ public class WebCrawlerService {
             if (stepsRemaining <= 0) {
                 return;
             }
-            }
+        }
     }
 
     public boolean hasTimeElapsed(long startTime, int maxTimeInMinutes) {
