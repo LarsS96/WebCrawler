@@ -24,21 +24,29 @@ public class ScraperService {
 
     public void scrapeAndSavePlayer(String url) {
         try {
-            Document doc = Jsoup.connect(url).get();
-            String playerName = transfermarktScraper.scrapeName(doc);
-
-            if (playerRepository.existsByName(playerName)) {
-                return;
-            }
-
-            Player player = createPlayer(doc);
-
-            if (player.getAge() > 0) {
-                playerRepository.save(player);
-                log.info("{} has succesfully been added to the database", player.getName());
-            }
+            Player player = scrapePlayer(url);
+            savePlayer(player);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public Player scrapePlayer(String url) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        String playername = transfermarktScraper.scrapeName(doc);
+
+        if (playerRepository.existsByName(playername)) {
+            return null;
+        }
+        return createPlayer(doc);
+    }
+
+    public void savePlayer(Player player) {
+        if (player != null && player.getAge() > 0) {
+            playerRepository.save(player);
+            log.info("{} has successfully been added to the database", player.getName());
+        } else {
+            log.error("Player is either null or invalid");
         }
     }
 
@@ -56,4 +64,6 @@ public class ScraperService {
             scrapeAndSavePlayer(url);
         }
     }
+
+
 }
