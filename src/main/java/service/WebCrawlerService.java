@@ -23,7 +23,7 @@ public class WebCrawlerService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 1, 5);
+        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 3, 5);
     }
 
     public void crawl(String startUrl, int maxSteps, int maxTimeInMinutes) {
@@ -32,10 +32,9 @@ public class WebCrawlerService {
     }
 
     public void crawlRecursive(String url, int stepsRemaining, long startTime, int maxTimeInMinutes) {
-        if (stepsRemaining == 0 || checkTimesUp(startTime, maxTimeInMinutes)) {
+        if (stepsRemaining == 0 || hasTimeElapsed(startTime, maxTimeInMinutes)) {
             return;
         }
-        scraperService.addPlayerIfNew(url);
 
         try {
             Document doc = Jsoup.connect(url).get();
@@ -45,7 +44,6 @@ public class WebCrawlerService {
         }
 
         crawlRecursive(url, stepsRemaining - 1, startTime, maxTimeInMinutes);
-        log.info(String.valueOf(stepsRemaining - 1));
     }
 
     public void scrapeTeamPlayers(Document doc) {
@@ -54,12 +52,11 @@ public class WebCrawlerService {
         for (Element link : playerLinks) {
             String playerUrl = link.attr("href");
             playerUrl = "https://www.transfermarkt.com" + playerUrl;
-            scraperService.scrapeAndSavePlayer(playerUrl);
-            log.info(playerUrl);
+            scraperService.addPlayerIfNew(playerUrl);
         }
     }
 
-    private static boolean checkTimesUp(long startTime, int maxTimeInMinutes) {
+    private static boolean hasTimeElapsed(long startTime, int maxTimeInMinutes) {
         long elapsedTimeInMinutes = TimeUnit.MILLISECONDS.toMinutes
                 (System.currentTimeMillis() - startTime);
         return elapsedTimeInMinutes > maxTimeInMinutes;

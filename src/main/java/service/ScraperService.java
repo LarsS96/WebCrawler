@@ -45,8 +45,6 @@ public class ScraperService {
         if (player != null && player.getAge() > 0) {
             playerRepository.save(player);
             log.info("{} has successfully been added to the database", player.getName());
-        } else {
-            log.error("Player is either null or invalid");
         }
     }
 
