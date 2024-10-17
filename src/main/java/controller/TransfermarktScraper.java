@@ -42,7 +42,7 @@ public class TransfermarktScraper {
         return playerUrls;
     }
 
-    private static Player createPlayer(Document doc) {
+    private Player createPlayer(Document doc) {
         Player player = new Player();
         player.setName(scrapeName(doc));
         player.setAge(scrapeAge(doc));
@@ -50,26 +50,18 @@ public class TransfermarktScraper {
         return player;
     }
 
-    private static String scrapeName(Document doc) {
+    private String scrapeName(Document doc) {
         String nameClass = "h1.data-header__headline-wrapper";
-
         Element playerNameAndNumberElement = doc.selectFirst(nameClass);
-        if (playerNameAndNumberElement != null) {
-            String firstName = playerNameAndNumberElement.ownText().trim();
-
-            Element lastNameElement = playerNameAndNumberElement.selectFirst("strong");
-
-            if (lastNameElement != null) {
-                String lastName = lastNameElement.text().trim();
-                return String.format("%s %s", firstName, lastName);
-            } else {
-                return firstName;
-            } //TODO vermijden van if statements in andere if statements
+        if (playerNameAndNumberElement == null) {
+            return "Club";
         }
-        return "Club";
+        String firstName = playerNameAndNumberElement.ownText().trim();
+        Element lastNameElement = playerNameAndNumberElement.selectFirst("strong");
+        return (lastNameElement != null ? String.format("%s %s", firstName, lastNameElement.text().trim()) : firstName);
     }
 
-    private static String scrapeMarketValue(Document doc) {
+    private String scrapeMarketValue(Document doc) {
         String marketValueClass = "a.data-header__market-value-wrapper";
 
         Element playerMarketValueElement = doc.selectFirst(marketValueClass);
@@ -82,7 +74,7 @@ public class TransfermarktScraper {
         return "";
     }
 
-    private static int scrapeAge(Document doc) {
+    private int scrapeAge(Document doc) {
         String birthSelector = "span[itemprop=birthDate]";
         Element birthElement = doc.selectFirst(birthSelector);
 
@@ -97,8 +89,10 @@ public class TransfermarktScraper {
                 return (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            } // TODO specifiekere error handling
         }
         return -1;
     }
+
+    //TODO Nullchecks doen met Optional.ofNullable
 }

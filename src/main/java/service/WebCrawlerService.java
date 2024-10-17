@@ -87,7 +87,6 @@ public class WebCrawlerService {
             }
         }
     }
-//TODO bovenstaande methode fixen
 
     public boolean hasTimeElapsed(long startTime, int maxTimeInMinutes) {
         long elapsedTimeInMinutes = TimeUnit.MILLISECONDS.toMinutes
