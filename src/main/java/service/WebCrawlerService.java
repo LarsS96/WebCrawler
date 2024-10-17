@@ -9,7 +9,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -21,11 +20,11 @@ public class WebCrawlerService {
 
     private final ScraperService scraperService;
     private final TransfermarktScraper transfermarktScraper;
-    private final Set<String> visitedPages = new HashSet<>();
+    private final Set<String> visitedPages;
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 10, 1);
+        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 2, 1);
     }
 
     public void crawl(String startUrl, int maxSteps, int maxTimeInMinutes) {
@@ -34,34 +33,59 @@ public class WebCrawlerService {
     }
 
     public void crawlRecursive(String url, int stepsRemaining, long startTime, int maxTimeInMinutes) {
-        if (stepsRemaining == 0 || hasTimeElapsed(startTime, maxTimeInMinutes)) {
-            log.info("{} {}", stepsRemaining, hasTimeElapsed(startTime, maxTimeInMinutes));
+        if (checkLimits(stepsRemaining, startTime, maxTimeInMinutes)) {
             return;
         }
 
-        if (!visitedPages.contains(url)) {
-            visitedPages.add(url);
-            log.info("Visiting: {}", url);
+        processUrl(url, stepsRemaining, startTime, maxTimeInMinutes);
+    }
 
-            try {
-                Player player = transfermarktScraper.scrapePlayer(url);
-                if (player.getAge() > 0) {
-                    scraperService.savePlayer(player);
-                } else {
-                    List<String> teamPlayers = transfermarktScraper.scrapeTeamPlayers(url);
-                    for (String playerUrl : teamPlayers) {
-                        if (hasTimeElapsed(startTime, maxTimeInMinutes)) {
-                            log.info("Time limit reached");
-                            break;
-                        }
-                        crawlRecursive(playerUrl, stepsRemaining - 1, startTime, maxTimeInMinutes);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    private boolean checkLimits(int stepsRemaining, long startTime, int maxTimeInMinutes) {
+        if (stepsRemaining == 0) {
+            log.info("Step limit reached");
+            return true;
+        }
+        if (hasTimeElapsed(startTime, maxTimeInMinutes)) {
+            log.info("Time limit reached");
+            return true;
+        }
+        return false;
+    } //TODO end of steps fixen. Time limit optimaliseren
+
+    private void processUrl(String url, int stepsRemaining, long startTime, int maxTimeInMinutes) {
+        if (visitedPages.contains(url)) {
+            log.info("Already visited: {}", url);
+            return;
+        }
+
+        log.info("Visiting: {}", url);
+
+        try {
+            Player player = transfermarktScraper.scrapePlayer(url);
+            if (player != null && player.getAge() > 0) {
+                scraperService.savePlayer(player);
+            } else {
+                List<String> teamPlayers = transfermarktScraper.scrapeTeamPlayers(url);
+                crawlTeamPlayers(teamPlayers, stepsRemaining, startTime, maxTimeInMinutes);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void crawlTeamPlayers(List<String> teamPlayers, int stepsRemaining, long startTime, int maxInMinutes) {
+        stepsRemaining--;
+        for (String playerUrl : teamPlayers) {
+            if (checkLimits(stepsRemaining, startTime, maxInMinutes)) {
+                break;
+            }
+            crawlRecursive(playerUrl, stepsRemaining, startTime, maxInMinutes);
+
+            if (stepsRemaining == 0) {
+                return;
             }
         }
-        crawlRecursive(url, stepsRemaining - 1, startTime, maxTimeInMinutes);
     }
 //TODO bovenstaande methode fixen
 
