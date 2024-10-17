@@ -23,7 +23,7 @@ public class WebCrawlerService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 2, 5);
+        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 1, 5);
     }
 
     public void crawl(String startUrl, int maxSteps, int maxTimeInMinutes) {
@@ -44,8 +44,8 @@ public class WebCrawlerService {
             e.printStackTrace();
         }
 
-        crawlRecursive(url, stepsRemaining--, startTime, maxTimeInMinutes);
-        log.info(String.valueOf(stepsRemaining));
+        crawlRecursive(url, stepsRemaining - 1, startTime, maxTimeInMinutes);
+        log.info(String.valueOf(stepsRemaining - 1));
     }
 
     public void scrapeTeamPlayers(Document doc) {
