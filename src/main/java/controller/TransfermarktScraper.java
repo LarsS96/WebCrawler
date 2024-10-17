@@ -12,11 +12,10 @@ import java.util.Locale;
 @Component
 public class TransfermarktScraper {
 
-
     public String scrapeName(Document doc) {
-        String marketValueClass = "h1.data-header__headline-wrapper";
+        String nameClass = "h1.data-header__headline-wrapper";
 
-        Element playerNameAndNumberElement = doc.selectFirst(marketValueClass);
+        Element playerNameAndNumberElement = doc.selectFirst(nameClass);
         if (playerNameAndNumberElement != null) {
             String firstName = playerNameAndNumberElement.ownText().trim();
 

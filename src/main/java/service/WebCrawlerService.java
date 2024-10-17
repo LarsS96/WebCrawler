@@ -11,8 +11,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -21,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class WebCrawlerService {
 
     private final ScraperService scraperService;
-    private final Set<String> visitedPages = new HashSet<>();
+
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
@@ -37,7 +35,7 @@ public class WebCrawlerService {
         if (stepsRemaining == 0 || checkTimesUp(startTime, maxTimeInMinutes)) {
             return;
         }
-        addPlayerIfNew(url);
+        scraperService.addPlayerIfNew(url);
 
         try {
             Document doc = Jsoup.connect(url).get();
@@ -58,17 +56,9 @@ public class WebCrawlerService {
         }
     }
 
-
     private static boolean checkTimesUp(long startTime, int maxTimeInMinutes) {
         long elapsedTimeInMinutes = TimeUnit.MILLISECONDS.toMinutes
                 (System.currentTimeMillis() - startTime);
         return elapsedTimeInMinutes > maxTimeInMinutes;
-    }
-
-    public void addPlayerIfNew(String url) {
-        if (!visitedPages.contains(url)) {
-            visitedPages.add(url);
-            scraperService.scrapeAndSavePlayer(url);
-        }
     }
 }
