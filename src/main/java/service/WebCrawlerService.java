@@ -1,7 +1,9 @@
 package service;
 
+import controller.TransfermarktScraper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import model.Player;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,14 +13,19 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class WebCrawlerService {
 
     private final ScraperService scraperService;
+    private final TransfermarktScraper transfermarktScraper;
+    private final Set<String> visitedPages = new HashSet<>();
 
 
     @EventListener(ApplicationReadyEvent.class)
@@ -36,6 +43,26 @@ public class WebCrawlerService {
             return;
         }
 
+        if (!visitedPages.contains(url)) {
+            visitedPages.add(url);
+            log.info("Visiting: {}", url);
+
+            try {
+                Player player = transfermarktScraper.scrapePlayer(url);
+                if (player.getAge() > 0) {
+
+                    scraperService.savePlayer(player);
+                } else {
+                    List<String> teamPlayers = transfermarktScraper.scrapeTeamPlayers(url);
+                    for (String playerUrl : teamPlayers) {
+                        crawlRecursive(playerUrl, stepsRemaining - 1, startTime, maxTimeInMinutes);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+//TODO bovenstaande methode fixen
         try {
             Document doc = Jsoup.connect(url).get();
             scrapeTeamPlayers(doc);

@@ -42,7 +42,7 @@ public class ScraperService {
     }
 
     public void savePlayer(Player player) {
-        if (player != null && player.getAge() > 0) {
+        if (player != null && player.getAge() > 0 && !playerRepository.existsByName(player.getName())) {
             playerRepository.save(player);
             log.info("{} has successfully been added to the database", player.getName());
         }

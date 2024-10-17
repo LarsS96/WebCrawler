@@ -1,16 +1,51 @@
 package controller;
 
+import lombok.extern.slf4j.Slf4j;
+import model.Player;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 @Component
+@Slf4j
 public class TransfermarktScraper {
+
+    public Player scrapePlayer(String url) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        String playerName = scrapeName(doc);
+
+        if (playerName.equals("Club")) {
+            return null;
+        }
+
+        Player player = new Player();
+        player.setName(scrapeName(doc));
+        player.setAge(scrapeAge(doc));
+        player.setMarketValue(scrapeMarketValue(doc));
+        return player;
+    }
+
+    public List<String> scrapeTeamPlayers(String url) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        Elements playerLinks = doc.select("td.hauptlink a");
+        List<String> playerUrls = new ArrayList<>();
+
+        for (Element link : playerLinks) {
+            String playerUrl = "https://www.transfermarkt.com" + link.attr("href");
+            playerUrls.add(playerUrl);
+        }
+        return playerUrls;
+    }
 
     public String scrapeName(Document doc) {
         String nameClass = "h1.data-header__headline-wrapper";
