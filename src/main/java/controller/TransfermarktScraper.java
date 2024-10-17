@@ -27,12 +27,7 @@ public class TransfermarktScraper {
         if (playerName.equals("Club")) {
             return null;
         }
-
-        Player player = new Player();
-        player.setName(scrapeName(doc));
-        player.setAge(scrapeAge(doc));
-        player.setMarketValue(scrapeMarketValue(doc));
-        return player;
+        return createPlayer(doc);
     }
 
     public List<String> scrapeTeamPlayers(String url) throws IOException {
@@ -47,7 +42,15 @@ public class TransfermarktScraper {
         return playerUrls;
     }
 
-    public String scrapeName(Document doc) {
+    private static Player createPlayer(Document doc) {
+        Player player = new Player();
+        player.setName(scrapeName(doc));
+        player.setAge(scrapeAge(doc));
+        player.setMarketValue(scrapeMarketValue(doc));
+        return player;
+    }
+
+    private static String scrapeName(Document doc) {
         String nameClass = "h1.data-header__headline-wrapper";
 
         Element playerNameAndNumberElement = doc.selectFirst(nameClass);
@@ -66,7 +69,7 @@ public class TransfermarktScraper {
         return "Club";
     }
 
-    public String scrapeMarketValue(Document doc) {
+    private static String scrapeMarketValue(Document doc) {
         String marketValueClass = "a.data-header__market-value-wrapper";
 
         Element playerMarketValueElement = doc.selectFirst(marketValueClass);
@@ -79,7 +82,7 @@ public class TransfermarktScraper {
         return "";
     }
 
-    public int scrapeAge(Document doc) {
+    private static int scrapeAge(Document doc) {
         String birthSelector = "span[itemprop=birthDate]";
         Element birthElement = doc.selectFirst(birthSelector);
 

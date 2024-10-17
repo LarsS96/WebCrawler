@@ -19,5 +19,4 @@ public class ScraperService {
             log.info("{} has successfully been added to the database", player.getName());
         }
     }
-
 }

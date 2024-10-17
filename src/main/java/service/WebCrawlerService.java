@@ -23,7 +23,6 @@ public class WebCrawlerService {
     private final TransfermarktScraper transfermarktScraper;
     private final Set<String> visitedPages = new HashSet<>();
 
-
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 10, 1);
@@ -47,11 +46,14 @@ public class WebCrawlerService {
             try {
                 Player player = transfermarktScraper.scrapePlayer(url);
                 if (player.getAge() > 0) {
-
                     scraperService.savePlayer(player);
                 } else {
                     List<String> teamPlayers = transfermarktScraper.scrapeTeamPlayers(url);
                     for (String playerUrl : teamPlayers) {
+                        if (hasTimeElapsed(startTime, maxTimeInMinutes)) {
+                            log.info("Time limit reached");
+                            break;
+                        }
                         crawlRecursive(playerUrl, stepsRemaining - 1, startTime, maxTimeInMinutes);
                     }
                 }
@@ -59,13 +61,11 @@ public class WebCrawlerService {
                 e.printStackTrace();
             }
         }
-
         crawlRecursive(url, stepsRemaining - 1, startTime, maxTimeInMinutes);
     }
 //TODO bovenstaande methode fixen
 
-
-    private static boolean hasTimeElapsed(long startTime, int maxTimeInMinutes) {
+    public boolean hasTimeElapsed(long startTime, int maxTimeInMinutes) {
         long elapsedTimeInMinutes = TimeUnit.MILLISECONDS.toMinutes
                 (System.currentTimeMillis() - startTime);
         return elapsedTimeInMinutes >= maxTimeInMinutes;
