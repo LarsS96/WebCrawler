@@ -4,10 +4,6 @@ import controller.TransfermarktScraper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import model.Player;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -30,7 +26,7 @@ public class WebCrawlerService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 5, 5);
+        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 10, 1);
     }
 
     public void crawl(String startUrl, int maxSteps, int maxTimeInMinutes) {
@@ -40,6 +36,7 @@ public class WebCrawlerService {
 
     public void crawlRecursive(String url, int stepsRemaining, long startTime, int maxTimeInMinutes) {
         if (stepsRemaining == 0 || hasTimeElapsed(startTime, maxTimeInMinutes)) {
+            log.info("{} {}", stepsRemaining, hasTimeElapsed(startTime, maxTimeInMinutes));
             return;
         }
 
@@ -62,30 +59,15 @@ public class WebCrawlerService {
                 e.printStackTrace();
             }
         }
-        try {
-            Document doc = Jsoup.connect(url).get();
-            scrapeTeamPlayers(doc);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         crawlRecursive(url, stepsRemaining - 1, startTime, maxTimeInMinutes);
     }
 //TODO bovenstaande methode fixen
 
-    public void scrapeTeamPlayers(Document doc) {
-        Elements playerLinks = doc.select("td.hauptlink a");
-
-        for (Element link : playerLinks) {
-            String playerUrl = link.attr("href");
-            playerUrl = "https://www.transfermarkt.com" + playerUrl;
-            scraperService.addPlayerIfNew(playerUrl);
-        }
-    }
 
     private static boolean hasTimeElapsed(long startTime, int maxTimeInMinutes) {
         long elapsedTimeInMinutes = TimeUnit.MILLISECONDS.toMinutes
                 (System.currentTimeMillis() - startTime);
-        return elapsedTimeInMinutes > maxTimeInMinutes;
+        return elapsedTimeInMinutes >= maxTimeInMinutes;
     }
 }
