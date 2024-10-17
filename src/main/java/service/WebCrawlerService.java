@@ -1,6 +1,5 @@
 package service;
 
-import controller.TransfermarktScraper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import model.Player;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -19,12 +17,11 @@ import java.util.concurrent.TimeUnit;
 public class WebCrawlerService {
 
     private final ScraperService scraperService;
-    private final TransfermarktScraper transfermarktScraper;
-    private final Set<String> visitedPages;
+    private final TransfermarktScraperService transfermarktScraperService;
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 2, 1);
+        crawl("https://www.transfermarkt.com/manchester-united/startseite/verein/985", 4, 3);
     }
 
     public void crawl(String startUrl, int maxSteps, int maxTimeInMinutes) {
@@ -32,8 +29,8 @@ public class WebCrawlerService {
         crawlRecursive(startUrl, maxSteps, startTime, maxTimeInMinutes);
     }
 
-    public void crawlRecursive(String url, int stepsRemaining, long startTime, int maxTimeInMinutes) {
-        if (checkLimits(stepsRemaining, startTime, maxTimeInMinutes)) {
+    private void crawlRecursive(String url, int stepsRemaining, long startTime, int maxTimeInMinutes) {
+        if (stepsRemaining <= 0 || checkLimits(stepsRemaining, startTime, maxTimeInMinutes)) {
             return;
         }
 
@@ -50,22 +47,15 @@ public class WebCrawlerService {
             return true;
         }
         return false;
-    } //TODO end of steps fixen. Time limit optimaliseren
+    }
 
     private void processUrl(String url, int stepsRemaining, long startTime, int maxTimeInMinutes) {
-        if (visitedPages.contains(url)) {
-            log.info("Already visited: {}", url);
-            return;
-        }
-
-        log.info("Visiting: {}", url);
-
         try {
-            Player player = transfermarktScraper.scrapePlayer(url);
+            Player player = transfermarktScraperService.scrapePlayer(url);
             if (player != null && player.getAge() > 0) {
                 scraperService.savePlayer(player);
             } else {
-                List<String> teamPlayers = transfermarktScraper.scrapeTeamPlayers(url);
+                List<String> teamPlayers = transfermarktScraperService.scrapeTeamPlayers(url);
                 crawlTeamPlayers(teamPlayers, stepsRemaining, startTime, maxTimeInMinutes);
             }
         } catch (IOException e) {
@@ -75,17 +65,16 @@ public class WebCrawlerService {
     }
 
     private void crawlTeamPlayers(List<String> teamPlayers, int stepsRemaining, long startTime, int maxInMinutes) {
-        stepsRemaining--;
         for (String playerUrl : teamPlayers) {
             if (checkLimits(stepsRemaining, startTime, maxInMinutes)) {
-                break;
-            }
-            crawlRecursive(playerUrl, stepsRemaining, startTime, maxInMinutes);
-
-            if (stepsRemaining == 0) {
                 return;
             }
-        }
+            crawlRecursive(playerUrl, stepsRemaining - 1, startTime, maxInMinutes);
+
+            if (stepsRemaining <= 0) {
+                return;
+            }
+            }
     }
 
     public boolean hasTimeElapsed(long startTime, int maxTimeInMinutes) {
@@ -94,3 +83,4 @@ public class WebCrawlerService {
         return elapsedTimeInMinutes >= maxTimeInMinutes;
     }
 }
+//TODO end of steps fixen. Time limit optimaliseren

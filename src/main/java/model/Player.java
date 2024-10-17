@@ -20,4 +20,6 @@ public class Player {
 
     @Column(name = "age")
     private int age;
+
+    //TODO Had nog graag wat extra attributen toegevoegd als club en nationaliteit
 }

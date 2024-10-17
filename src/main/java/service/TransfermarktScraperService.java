@@ -1,4 +1,4 @@
-package controller;
+package service;
 
 import lombok.extern.slf4j.Slf4j;
 import model.Player;
@@ -18,9 +18,9 @@ import java.util.Locale;
 
 @Component
 @Slf4j
-public class TransfermarktScraper {
+public class TransfermarktScraperService {
 
-    public Player scrapePlayer(String url) throws IOException {
+    protected Player scrapePlayer(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
         String playerName = scrapeName(doc);
 
@@ -30,7 +30,7 @@ public class TransfermarktScraper {
         return createPlayer(doc);
     }
 
-    public List<String> scrapeTeamPlayers(String url) throws IOException {
+    protected List<String> scrapeTeamPlayers(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
         Elements playerLinks = doc.select("td.hauptlink a");
         List<String> playerUrls = new ArrayList<>();
@@ -70,7 +70,7 @@ public class TransfermarktScraper {
             String marketValue = playerMarketValueElement.ownText().trim();
 
             return String.format("Є%sm\n", marketValue);
-        } //TODO market value klopt niet helemaal, verschil tussen miljoenen, miljarden en tonnen
+        }
         return "";
     }
 
@@ -89,10 +89,12 @@ public class TransfermarktScraper {
                 return (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
             } catch (Exception e) {
                 e.printStackTrace();
-            } // TODO specifiekere error handling
+            }
         }
         return -1;
     }
 
-    //TODO Nullchecks doen met Optional.ofNullable
+    // TODO market value klopt niet helemaal, verschil tussen miljoenen, miljarden en tonnen
+    // TODO specifiekere error handling
+    // TODO Nullchecks doen met Optional.ofNullable
 }
